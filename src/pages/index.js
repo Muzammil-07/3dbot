@@ -1,118 +1,106 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import tr1 from '../../public/images/9/1.png';
+import tr2 from '../../public/images/9/2.png';
+import tr3 from '../../public/images/9/3.png';
+import tr4 from '../../public/images/9/4.png';
+import tr5 from '../../public/images/9/1.png';
+import tr6 from '../../public/images/9/6.png';
+import tr7 from '../../public/images/9/7.png';
+import tr8 from '../../public/images/9/8.png';
+import tr9 from '../../public/images/9/9.png';
+import tr10 from '../../public/images/9/10.png';
+import tr11 from '../../public/images/9/11.png';
+import tr12 from '../../public/images/9/12.png';
+import { useSpeechSynthesis } from "react-speech-kit";
 
 export default function Home() {
+  const [lips, setLips] = useState(tr12);
+  const [dialog, setDialoge] = useState('no');
+  const [isLooping, setIsLooping] = useState(false);
+  const [currentCharacterIndex, setCurrentCharacterIndex] = useState(0);
+  const { speak } = useSpeechSynthesis();
+  
+  const characters = dialog.trim().split('');
+
+  const getImageForCharacter = (char) => {
+    switch (char.toLowerCase()) {
+      case 'a':
+      case 'e':
+      case 'i':
+        return tr1;
+      case 'o':
+        return tr2;
+      case 'b':
+      case 'm':
+      case 'p':
+        return tr3;
+      case 'c':
+      case 'd':
+      case 'g':
+      case 'k':
+      case 'n':
+      case 's':
+      case 't':
+      case 'x':
+      case 'y':
+      case 'z':
+        return tr4;
+      case 'u':
+        return tr5;
+      case 'f':
+      case 'v':
+        return tr6;
+      case 'q':
+      case 'w':
+        return tr9;
+      case 'r':
+        return tr10;
+      case 'l':
+        return tr11;
+      default:
+        return tr6;
+    }
+  };
+
+  useEffect(() => {
+    if (isLooping) {
+      const timer = setTimeout(() => {
+        const char = characters[currentCharacterIndex];
+        const image = getImageForCharacter(char);
+        setLips(image);
+
+        setCurrentCharacterIndex((prevIndex) => prevIndex + 1);
+
+        // Check if all characters are processed
+        if (currentCharacterIndex === characters.length - 1) {
+          setIsLooping(false);
+        }
+      }, 80); // Adjust the delay as needed
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLooping, currentCharacterIndex, characters]);
+
+  const playFunc = () => {
+    setLips(tr12);
+    setCurrentCharacterIndex(0);
+    setIsLooping(true);
+    speak({text:dialog,pitch:1,rate:1})
+    console.log()
+  };
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <>
+      <div className='h-[80vh] flex justify-center'>
+        <div className="bg-[url('../../public/images/avatar.png')] bg-contain bg-no-repeat">
+          <Image src={lips} className='h-[30px] w-[200px] object-contain mt-[110px] ml-[18px]' height={300} width={300} alt='avatar' />
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className='flex justify-center'>
+        <input type='text' placeholder='Enter Your Text' value={dialog} className='h-[24px] p-2' onChange={(e) => { setDialoge(e.target.value) }} />
+        <button className='px-8 bg-red-500 hover:bg-red-700 text-white' onClick={playFunc}> Play</button>
       </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </>
+  );
 }
